@@ -121,7 +121,7 @@
         },
         {
           "name": "storage.modifier.pave",
-          "match": "\\b(mut|pub|export|const)\\b"
+          "match": "\\b(mut|pub|export|const|dyn)\\b"
         },
         {
           "name": "storage.type.pave",

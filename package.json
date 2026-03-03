@@ -51,9 +51,9 @@
           "scope": "resource"
         }
       }
-    },
-    "files": ["out/**/*.js", "out/**/pavels*.*"]
+    }
   },
+  "files": ["out/**", "language-configuration.json", "*.tmLanguage.json", "README.md", "LICENSE"],
   "dependencies": {
     "vscode-languageclient": "^9.0.1"
   },
