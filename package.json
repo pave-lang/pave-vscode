@@ -1,0 +1,70 @@
+{
+  "name": "pave-vscode",
+  "publisher": "Pave",
+  "displayName": "Pave VS Code Extension",
+  "license": "Apache-2.0",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pave-lang/pave-vscode"
+  },
+  "main": "./out/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "pave",
+        "aliases": ["Pave", "pave"],
+        "extensions": [".pv", ".pave"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "pave",
+        "scopeName": "source.pave",
+        "path": "pave.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Pave",
+      "properties": {
+        "pave.args": {
+          "type": "array",
+          "default": [],
+          "description": "List of args for pave",
+          "scope": "resource",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "pave.clang_args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "List of args to parse to clang",
+          "scope": "resource"
+        }
+      }
+    },
+    "files": ["out/**/*.js", "out/**/pavels*.*"]
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/vscode": "^1.100.0",
+    "@vscode/vsce": "^3.7.1",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "package": "rm -rf out && tsc && cd ../pave && make ls-release && cd ../pave-vscode && vsce package",
+    "package-install": "npm run package && code --install-extension pave-vscode-0.0.1.vsix --force"
+  }
+}

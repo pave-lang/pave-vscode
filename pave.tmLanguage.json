@@ -1,0 +1,220 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Pave",
+  "fileTypes": ["un"],
+  "scopeName": "source.pave",
+  "patterns": [
+    { "include": "#cpp_conditional" },
+    { "include": "#comment" },
+    { "include": "#keyword" },
+    { "include": "#literal" },
+    { "include": "#function" },
+    { "include": "#primitive" },
+    { "include": "#type" },
+    { "include": "#let" },
+    { "include": "#variable" },
+    { "include": "#operator_priority" },
+    { "include": "#bracket" },
+    { "include": "#operator" }
+  ],
+  "repository": {
+    "cpp_conditional": {
+      "name": "meta.preprocessor.pave",
+      "begin": "^#cpp\\b",
+      "end": "\\z",
+      "patterns": [
+        { "include": "#cpp_keywords" },
+        { "include": "#comment" },
+        { "include": "#keyword" },
+        { "include": "#literal" },
+        { "include": "#function" },
+        { "include": "#primitive" },
+        { "include": "#type" },
+        { "include": "#let" },
+        { "include": "#variable" },
+        { "include": "#operator_priority" },
+        { "include": "#bracket" },
+        { "include": "#operator" }
+      ]
+    },
+    "cpp_keywords": {
+      "patterns": [
+        {
+          "name": "keyword.operator.memory.cpp.pave",
+          "match": "\\b(new|delete)\\b"
+        }
+      ]
+    },
+    "bracket": {
+      "patterns": [
+        { "name": "punctuation.brackets.curly.pave", "match": "[{}]" },
+        { "name": "punctuation.brackets.square.pave", "match": "[\\[\\]]" },
+        { "name": "punctuation.brackets.round.pave", "match": "[()]" },
+        { "name": "punctuation.brackets.angle.pave", "match": "[<>]" }
+      ]
+    },
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.pave",
+          "match": "(//.*)$"
+        },
+        {
+          "name": "comment.block.pave",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "function": {
+      "name": "meta.function.pave",
+      "patterns": [
+        {
+          "match": "\\b(fn|co)(\\s+([a-zA-Z_][a-zA-Z0-9_]*))?\\b",
+          "captures": {
+            "1": { "name": "storage.type.function.pave" },
+            "3": { "name": "entity.name.function.pave" }
+          }
+        },
+        {
+          "match": "\\b([a-z][a-zA-Z0-9_]*)[\\(<]",
+          "captures": {
+            "1": { "name": "entity.name.function.pave" }
+          }
+        }
+      ]
+    },
+    "block": {
+      "name": "meta.function.block.pave",
+      "begin": "{",
+      "beginCaptures": {
+        "0": { "name": "punctuation.brackets.curly.pave" }
+      },
+      "patterns": [{ "include": "#let" }],
+      "end": "}",
+      "endCaptures": {
+        "0": { "name": "punctuation.brackets.curly.pave" }
+      }
+    },
+    "let": {
+      "match": "(let)\\s+(static\\s+)?([a-zA-Z_][a-zA-Z0-9_]*)(:)?",
+      "captures": {
+        "1": { "name": "storage.type.pave" },
+        "2": { "name": "storage.modifier.pave" },
+        "3": { "name": "variable.other.pave" },
+        "4": { "name": "keyword.operator.type.annotation.pave" }
+      }
+    },
+    "primitive": {
+      "name": "support.type.primitive.pave",
+      "match": "\\b(i8|u8|i16|u16|i32|u32|i64|u64|isize|usize|bool|f32|f64|char|void|str)\\b"
+    },
+    "keyword": {
+      "patterns": [
+        {
+          "name": "meta.preprocessor.pave",
+          "match": "^(#include|ns|mod|use)\\b"
+        },
+        {
+          "name": "keyword.control.pave",
+          "match": "\\b(if|else|for|in|while|continue|break|return|yield|match|defer)\\b"
+        },
+        {
+          "name": "storage.modifier.pave",
+          "match": "\\b(mut|pub|export|const)\\b"
+        },
+        {
+          "name": "storage.type.pave",
+          "match": "\\b(struct|impl|enum|trait)\\b"
+        },
+        {
+          "name": "variable.language.self.pave",
+          "match": "\\b&?self\\b"
+        }
+      ]
+    },
+    "operator_priority": {
+      "name": "keyword.operator.pave",
+      "match": "(>=|<=)"
+    },
+    "operator": {
+      "name": "keyword.operator.pave",
+      "match": "(->|=>|\\|\\||&&|==|!=|<|>|=|[+\\-*/]|&|\\*|::|.)"
+    },
+    "literal": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.pave",
+          "begin": "\"",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.pave" } },
+          "patterns": [{ "include": "#string-escape" }],
+          "end": "\"",
+          "endCaptures": { "0": { "name": "punctuation.definition.string.begin.pave" } }
+        },
+        {
+          "name": "string.quoted.single.pave",
+          "begin": "'",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.pave" } },
+          "patterns": [{ "include": "#string-escape" }],
+          "end": "'",
+          "endCaptures": { "0": { "name": "punctuation.definition.string.begin.pave" } }
+        },
+        {
+          "name": "constant.language.boolean.true.pave",
+          "match": "\\btrue\\b"
+        },
+        {
+          "name": "constant.language.boolean.false.pave",
+          "match": "\\bfalse\\b"
+        },
+        {
+          "name": "constant.numeric.pave",
+          "match": "\\b(0[xX][0-9a-fA-F]+|[0-9]+(\\.[0-9]+[fF]?)?)\\b"
+        }
+      ]
+    },
+    "string-escape": {
+      "name": "constant.character.escape.pave",
+      "match": "\\\\(a|b|f|n|r|t|v|\\\\|'|\\\"|\\?|[0-9][0-9][0-9]|x[0-9][0-9]|0)",
+      "captures": {
+        "1": { "name": "constant.character.escape.pave" }
+      }
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.brackets.angle.pave",
+          "match": "[<>]"
+        },
+        {
+          "name": "punctuation.separator.comma.pave",
+          "match": ","
+        }
+      ]
+    },
+    "type": {
+      "match": "\\b([*&]*)([A-Z][a-zA-Z0-9_]*)\\b",
+      "captures": {
+        "1": { "name": "storage.modifier.pave" },
+        "2": { "name": "entity.name.type.pave" }
+      }
+    },
+    "variable": {
+      "patterns": [
+        {
+          "match": "([a-zA-Z_][a-zA-Z0-9_]*)(:)?",
+          "captures": {
+            "1": { "name": "variable.parameter.pave" },
+            "2": { "name": "keyword.operator.type.annotation.pave" }
+          }
+        },
+        {
+          "match": "([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "variable.other.pave" }
+          }
+        }
+      ]
+    }
+  }
+}

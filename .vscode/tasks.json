@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+		{
+			"label": "pavels build",
+			"type": "shell",
+			"command": "make",
+			"args": ["ls"],
+      "options": {
+        "cwd": "${workspaceFolder}/../pave"
+      },
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"echo": true
+			},
+			"problemMatcher": ["$gcc"]
+		},
+    {
+      "label": "pave-vscode watch",
+      "type": "shell",
+      "command": "bunx",
+      "args": [
+        "tsc",
+        "-b",
+        "-w"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      },
+      "problemMatcher": [
+        "$tsc-watch"
+      ]
+    },
+    {
+      "label": "pave-vscode package",
+      "type": "shell",
+      "command": "bun",
+      "args": [
+        "run",
+        "package"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      },
+      "problemMatcher": [
+        "$tsc-watch"
+      ]
+    }
+  ]
+}
