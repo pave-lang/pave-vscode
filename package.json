@@ -53,7 +53,7 @@
       }
     }
   },
-  "files": ["out/**", "language-configuration.json", "*.tmLanguage.json", "README.md", "LICENSE"],
+  "files": ["out/**", "node_modules/**", "language-configuration.json", "*.tmLanguage.json", "README.md", "LICENSE"],
   "dependencies": {
     "vscode-languageclient": "^9.0.1"
   },
