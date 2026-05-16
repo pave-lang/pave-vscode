@@ -125,7 +125,7 @@
         },
         {
           "name": "storage.type.pave",
-          "match": "\\b(struct|impl|enum|trait|typedef)\\b"
+          "match": "\\b(struct|impl|enum|trait|typedef|test)\\b"
         },
         {
           "name": "variable.language.self.pave",
