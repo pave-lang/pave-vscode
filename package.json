@@ -64,7 +64,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "package": "rm -rf out && tsc && cd ../pave && make ls-release && cd ../pave-vscode && vsce package",
+    "package": "rm -rf out && tsc && vsce package",
     "package-install": "npm run package && code --install-extension pave-vscode-0.0.1.vsix --force"
   }
 }

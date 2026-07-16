@@ -113,7 +113,7 @@
       "patterns": [
         {
           "name": "meta.preprocessor.pave",
-          "match": "^(#include|ns|mod|use)\\b"
+          "match": "^(#include|#if|#else|#elif|#endif|#ifdef|#ifndef|ns|mod|use)\\b"
         },
         {
           "name": "keyword.control.pave",
