@@ -32,22 +32,31 @@
     "configuration": {
       "title": "Pave",
       "properties": {
+        "pave.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the pavels language server executable. If empty, pavels is resolved from PATH. Supports ${userHome}, ${workspaceFolder}, and ${env:VAR_NAME}.",
+          "scope": "machine-overridable"
+        },
         "pave.args": {
           "type": "array",
           "default": [],
-          "description": "List of args for pave",
+          "description": "List of args for pave: \"name=path\" module search roots, followed by a '--' element, followed by clang args.",
           "scope": "resource",
-          "additionalProperties": {
+          "items": {
             "type": "string"
           }
         },
-        "pave.clang_args": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [],
-          "description": "List of args to parse to clang",
+        "pave.cmakeArgsVariable": {
+          "type": "string",
+          "default": "PAVEC_ARGS",
+          "description": "Name of a CMake cache variable containing a combined list of pave args, in the same format as pave.args. When set and found in the CMake build directory's CMakeCache.txt, it takes precedence over pave.args.",
+          "scope": "resource"
+        },
+        "pave.cmakeBuildDirectory": {
+          "type": "string",
+          "default": "build",
+          "description": "Path of the CMake build directory containing CMakeCache.txt, used to resolve pave.cmakeArgsVariable. Relative paths are resolved against the workspace folder. Supports ${userHome}, ${workspaceFolder}, and ${env:VAR_NAME}.",
           "scope": "resource"
         }
       }
