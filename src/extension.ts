@@ -30,6 +30,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: "file", language: "pave" }],
+    outputChannel,
     synchronize: {
       configurationSection: ["pave"],
     },
@@ -71,6 +72,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
             pave: {
               args: cmakeArgs,
               path: paveConfig.get("path"),
+              logMessages: paveConfig.get("logMessages"),
               cmakeArgsVariable: paveConfig.get("cmakeArgsVariable"),
               cmakeBuildDirectory: paveConfig.get("cmakeBuildDirectory"),
             },
