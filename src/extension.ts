@@ -1,7 +1,21 @@
 import { constants, promises as fs } from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { Uri, window, workspace, type ExtensionContext, type OutputChannel, type WorkspaceFolder } from "vscode";
+import {
+  ProcessExecution,
+  Task,
+  TaskPanelKind,
+  TaskRevealKind,
+  Uri,
+  commands,
+  tasks,
+  window,
+  workspace,
+  type ExtensionContext,
+  type OutputChannel,
+  type TaskExecution,
+  type WorkspaceFolder,
+} from "vscode";
 import {
   DidChangeConfigurationNotification,
   LanguageClient,
@@ -18,6 +32,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
   outputChannel = window.createOutputChannel("Pave");
   context.subscriptions.push(outputChannel);
   outputChannel.appendLine("Pave is now active!");
+
+  // The language server's "Run test" lenses call pave.runTests with the test
+  // program's arguments (a filter, or --exact and a test id) and a label.
+  context.subscriptions.push(
+    commands.registerCommand("pave.runTests", (runnerArgs: unknown, label: unknown) =>
+      runTests(Array.isArray(runnerArgs) ? runnerArgs.map(String) : [], typeof label === "string" ? label : "tests")),
+    commands.registerCommand("pave.runAllTests", () => runTests([], "all tests")),
+  );
 
   const rawServerPath = workspace.getConfiguration("pave").get<string>("path", "");
   const serverPath = rawServerPath ? resolveConfigVariables(rawServerPath, workspace.workspaceFolders?.[0]) : "";
@@ -104,6 +126,91 @@ export async function deactivate(): Promise<void> {
   } finally {
     await removeCurrentShadowCopy();
   }
+}
+
+let testRun: Promise<void> | undefined;
+
+// Builds the test program with pave.test.buildCommand, then runs
+// pave.test.program with runnerArgs, each as a task in the terminal panel.
+// The program reports TAP and exits non-zero when a test fails.
+async function runTests(runnerArgs: string[], label: string): Promise<void> {
+  if (testRun) {
+    window.showInformationMessage("Pave tests are already running.");
+    return;
+  }
+
+  const activeUri = window.activeTextEditor?.document.uri;
+  const folder = (activeUri ? workspace.getWorkspaceFolder(activeUri) : undefined) ?? workspace.workspaceFolders?.[0];
+  if (!folder) {
+    window.showErrorMessage("Running Pave tests needs an open workspace folder.");
+    return;
+  }
+
+  const config = workspace.getConfiguration("pave", folder.uri);
+  const rawProgram = config.get<string>("test.program", "");
+  if (!rawProgram) {
+    const choice = await window.showErrorMessage(
+      "Set pave.test.program to the test program built with pavec --test (and pave.test.buildCommand to build it).",
+      "Open Settings",
+    );
+    if (choice) {
+      await commands.executeCommand("workbench.action.openSettings", "pave.test");
+    }
+    return;
+  }
+
+  const cwd = folder.uri.fsPath;
+  const program = path.resolve(cwd, resolveConfigVariables(rawProgram, folder));
+  const buildCommand = config.get<string[]>("test.buildCommand", []).map((arg) => resolveConfigVariables(arg, folder));
+
+  testRun = (async () => {
+    if (buildCommand.length > 0) {
+      const [command, ...args] = buildCommand;
+      const exitCode = await runTask(folder, "build", "Build tests", new ProcessExecution(command, args, { cwd }));
+      if (exitCode !== 0) {
+        window.showErrorMessage(`Building Pave tests failed${exitCode === undefined ? "" : ` (exit code ${exitCode})`}.`);
+        return;
+      }
+    }
+
+    const exitCode = await runTask(folder, "test", `Test: ${label}`, new ProcessExecution(program, runnerArgs, { cwd }));
+    if (exitCode !== 0) {
+      window.showErrorMessage(`Pave tests failed: ${label}`);
+    }
+  })();
+
+  try {
+    await testRun;
+  } finally {
+    testRun = undefined;
+  }
+}
+
+async function runTask(folder: WorkspaceFolder, step: string, name: string, execution: ProcessExecution): Promise<number | undefined> {
+  const task = new Task({ type: "pave", step }, folder, name, "pave", execution, []);
+  task.presentationOptions = { reveal: TaskRevealKind.Always, panel: TaskPanelKind.Dedicated, clear: true };
+
+  // A process that never starts (a bad path) ends the task with no process
+  // end, so the exit code is taken from the process and settled on task end.
+  let started: TaskExecution | undefined;
+  let exitCode: number | undefined;
+  const isThisTask = (execution: TaskExecution) => execution === started || execution.task.name === name;
+  const ended = new Promise<number | undefined>((resolve) => {
+    const processListener = tasks.onDidEndTaskProcess((event) => {
+      if (isThisTask(event.execution)) {
+        exitCode = event.exitCode;
+      }
+    });
+    const taskListener = tasks.onDidEndTask((event) => {
+      if (isThisTask(event.execution)) {
+        processListener.dispose();
+        taskListener.dispose();
+        resolve(exitCode);
+      }
+    });
+  });
+  started = await tasks.executeTask(task);
+  return ended;
 }
 
 function resolveConfigVariables(value: string, workspaceFolder: WorkspaceFolder | undefined): string {

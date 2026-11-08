@@ -29,6 +29,24 @@
         "path": "pave.tmLanguage.json"
       }
     ],
+    "commands": [
+      {
+        "command": "pave.runAllTests",
+        "title": "Run All Tests",
+        "category": "Pave"
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "pave",
+        "properties": {
+          "step": {
+            "type": "string",
+            "description": "\"build\" builds the test program; \"test\" runs it."
+          }
+        }
+      }
+    ],
     "configuration": {
       "title": "Pave",
       "properties": {
@@ -57,6 +75,21 @@
           "type": "string",
           "default": "PAVEC_ARGS",
           "description": "Name of a CMake cache variable containing a combined list of pave args, in the same format as pave.args. When set and found in the CMake build directory's CMakeCache.txt, it takes precedence over pave.args.",
+          "scope": "resource"
+        },
+        "pave.test.buildCommand": {
+          "type": "array",
+          "default": [],
+          "description": "Command that builds the test program (a pavec --test build), as the program followed by its arguments, run from the workspace folder before tests run; empty to run the test program as it is. Supports ${userHome}, ${workspaceFolder}, and ${env:VAR_NAME}. For example: [\"make\", \"test-build\"].",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pave.test.program": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the test program built with pavec --test, run from the workspace folder. Relative paths are resolved against the workspace folder. Supports ${userHome}, ${workspaceFolder}, and ${env:VAR_NAME}.",
           "scope": "resource"
         },
         "pave.cmakeBuildDirectory": {
